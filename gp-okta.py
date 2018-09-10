@@ -34,13 +34,12 @@ import xml.etree.ElementTree as ET
 
 ffuastr = "Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0"
 
-
-if sys.version_info >= (3,):
-	text_type = str
-	binary_type = bytes
+if sys.version_info >= (3, ):
+    text_type = str
+    binary_type = bytes
 else:
-	text_type = unicode
-	binary_type = str
+    text_type = unicode
+    binary_type = str
 
 to_b = lambda v: v if isinstance(v, binary_type) else v.encode('utf-8')
 to_u = lambda v: v if isinstance(v, text_type) else v.decode('utf-8')
@@ -151,6 +150,7 @@ def load_conf(cf):
     conf['debug'] = conf.get('debug', '').lower() in ['1', 'true']
     return conf
 
+
 def paloalto_prelogin(conf, s):
     log('prelogin request')
     r = s.get('{0}/global-protect/prelogin.esp'.format(conf.get('vpn_url')))
@@ -170,6 +170,7 @@ def paloalto_prelogin(conf, s):
     dbg(conf.get('debug'), 'prelogin.decoded', saml_raw)
     saml_xml = parse_html(saml_raw)
     return saml_xml
+
 
 def okta_saml(conf, s, saml_xml):
     log('okta saml request')
@@ -193,6 +194,7 @@ def okta_saml(conf, s, saml_xml):
         redirect_url = base_url + from_uri
     return redirect_url
 
+
 def okta_auth(conf, s):
     log('okta auth request')
     url = '{0}/api/v1/authn'.format(conf.get('okta_url'))
@@ -208,7 +210,6 @@ def okta_auth(conf, s):
     if r.status_code != 200:
         err('okta auth request failed. {0}'.format(reprr(r)))
     dbg(conf.get('debug'), 'auth.response', reprr(r))
-    #    dbg(conf.get('debug'), 'auth.cookies', r.cookies)
     j = parse_rjson(r)
     status = j.get('status', '').strip()
     dbg(conf.get('debug'), 'status', status)
@@ -436,15 +437,17 @@ def main():
     r = s.get(redirect_url, headers={"User-Agent": ffuastr})
     token = okta_auth(conf, s)
     log('sessionToken: {0}'.format(token))
-    saml_username, prelogin_cookie = okta_redirect(conf, s, token, redirect_url)
+    saml_username, prelogin_cookie = okta_redirect(conf, s, token,
+                                                   redirect_url)
     log('saml-username: {0}'.format(saml_username))
     log('prelogin-cookie: {0}'.format(prelogin_cookie))
-    userauthcookie, gateway = paloalto_getconfig(conf, s, saml_username, prelogin_cookie)
+    userauthcookie, gateway = paloalto_getconfig(conf, s, saml_username,
+                                                 prelogin_cookie)
     log('portal-userauthcookie: {0}'.format(userauthcookie))
-    authcookie = globalprotect_login(conf, s, gateway, saml_username, userauthcookie)
+    authcookie = globalprotect_login(conf, s, gateway, saml_username,
+                                     userauthcookie)
     if authcookie is None:
         err("Could not get authcookie")
-
 
     cmd = conf.get('openconnect_cmd') or 'openconnect'
     cmd += ' --protocol=gp '
@@ -463,6 +466,7 @@ def main():
         cp.communicate()
     else:
         print(cmd)
+
 
 if __name__ == '__main__':
     main()
