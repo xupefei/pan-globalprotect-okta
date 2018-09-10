@@ -28,11 +28,21 @@ from __future__ import print_function
 import io, os, sys, re, json, base64, getpass, subprocess, shlex, signal
 from lxml import etree
 import requests
-from urllib import urlencode
-from urlparse import urlparse
+
+try:
+    from urllib import urlencode
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlencode, urlparse
+
 import xml.etree.ElementTree as ET
 
 ffuastr = "Mozilla/5.0 (X11; Linux x86_64; rv:61.0) Gecko/20100101 Firefox/61.0"
+
+try:
+    input = raw_input
+except NameError:
+    pass
 
 if sys.version_info >= (3, ):
     text_type = str
@@ -135,7 +145,7 @@ def load_conf(cf):
             conf[k] = v.strip()
     if len(conf.get('username', '').strip()) == 0:
         sys.stderr.write('username: ')
-        conf['username'] = raw_input().strip()
+        conf['username'] = input().strip()
     if len(conf.get('password', '').strip()) == 0:
         conf['password'] = getpass.getpass('password: ').strip()
     if 'root_cert_file' not in conf:
@@ -275,7 +285,7 @@ def okta_mfa_totp(conf, s, factors, state_token):
         code = None
         if len(secret) == 0:
             sys.stderr.write('{0} TOTP: '.format(provider))
-            code = raw_input().strip()
+            code = input().strip()
         else:
             import pyotp
             totp = pyotp.TOTP(secret)
