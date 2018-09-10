@@ -1,19 +1,29 @@
 # pan-globalprotect-okta
 
-Command-line client for PaloAlto Networks' GlobalProtect VPN, integrated with OKTA.
-This utility will do the _authentication dance_ with OKTA to retrieve `portal-userauthcookie`,
-which will be passed to [OpenConnect with PAN GlobalProtect support](https://github.com/dlenski/openconnect)
-for creating actual VPN connection. Compatible with Python 2 and 3. Tested on
-FreeBSD, Linux and MacOS X.
+This is a slightly modified version of a [Command-line client for PaloAlto Networks' GlobalProtect
+VPN integrated with OKTA](https://github.com/arthepsy/pan-globalprotect-okta).  The changes are as
+follows:
 
-It also supports Google and OKTA two factor authentication and can work without
-user interaction, if initial TOTP secret is provided. Otherwise, it will ask for
-generated code.
+- Passes a firefox User-Agent header to Okta in some key places to allow the script to fully log in.
+  Some Okta configurations fail to log in without this.
+- Does one more step in the authentication dance with the VPN gateway, and only calls `openconnect`
+  to establish the final VPN connection.
 
-To gather TOTP secret, there are two possibilities - either scan the provided QR
-code with _normal_ QR code scanner and write down the secret. Or create backup
-from current OTP application in phone. Some applications have this feature, but
-some don't. For example, andOTP on Android do support this feature.
+This utility will do the _authentication dance_ with OKTA to retrieve `portal-userauthcookie`, and
+will then pass this on to the VPN login page to retrieve the actual cookie needed to login.  It then
+either executes or prints the correct invocation of [OpenConnect with PAN GlobalProtect
+support](https://github.com/dlenski/openconnect) for creating actual VPN connection. Compatible with
+Python 2 and 3.
+
+Original tested on FreeBSD, Linux and MacOS X, this fork tested only on Linux.
+
+It also supports Google and OKTA two factor authentication and can work without user interaction, if
+initial TOTP secret is provided. Otherwise, it will ask for generated code.
+
+To gather TOTP secret, there are two possibilities - either scan the provided QR code with _normal_
+QR code scanner and write down the secret. Or create backup from current OTP application in
+phone. Some applications have this feature, but some don't. For example, andOTP on Android do
+support this feature.
 
 ## usage
 This utility depends on [requests](http://www.python-requests.org/) and [lxml](https://lxml.de/)
@@ -41,6 +51,8 @@ sh run-docker.sh
 Configuration file should be self-explanatory. Options can be overridden with
 `GP_` prefixed respective environment variables, e.g., `GP_PASSWORD` will
 override `password` option in configuration file.
+
+NB: It is not wise to store passwords in your config files.
 
 ## known issues
 
