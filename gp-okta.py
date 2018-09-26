@@ -463,6 +463,7 @@ def main():
     cmd += ' --protocol=gp '
     cmd += ' --usergroup gateway '
     cmd += ' {0} '
+    cmd += ' --mtu=5200 '
     cmd += ' --cookie="{1}" '
     cmd += conf.get('openconnect_args', '') + ' --cafile "{2}"'
     cmd = cmd.format(gateway, authcookie, conf['root_cert_file'])
