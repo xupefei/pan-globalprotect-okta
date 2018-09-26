@@ -28,12 +28,21 @@ from __future__ import print_function
 import io, os, sys, re, json, base64, getpass, subprocess, shlex, signal
 from lxml import etree
 import requests
+import time
 
 try:
     from urllib import urlencode
     from urlparse import urlparse
 except ImportError:
     from urllib.parse import urlencode, urlparse
+
+try:
+    from u2flib_host import u2f, exc, __version__
+    from u2flib_host.constants import APDU_USE_NOT_SATISFIED
+    haveu2f = True
+except ImportError:
+    print('[INFO] Could not import u2flib_host package, will not be able to do U2F 2FA')
+    haveu2f = False
 
 import xml.etree.ElementTree as ET
 
@@ -259,6 +268,15 @@ def okta_mfa(conf, s, j):
     dbg(conf.get('debug'), 'factors', factors)
     if len(factors) == 0:
         err('no factors found')
+
+    u2f_factors = [
+        x for x in factors if x.get('type') == 'u2f'
+    ]
+    if len(u2f_factors) > 0 and haveu2f:
+        u2f_resp = okta_mfa_u2f(conf, s, u2f_factors, state_token)
+        if u2f_resp:
+            return u2f_resp
+
     totp_factors = [
         x for x in factors if x.get('type') == 'token:software:totp'
     ]
@@ -267,6 +285,87 @@ def okta_mfa(conf, s, j):
         err('no totp factors found')
     return okta_mfa_totp(conf, s, totp_factors, state_token)
 
+def do_u2f_sign(devices, auth_request_data, facet, state_token):
+        for device in devices[:]:
+            try:
+                device.open()
+            except:
+                devices.remove(device)
+        try:
+            prompted = False
+            while devices:
+                for device in devices:
+                    try:
+                        signed = u2f.authenticate(device,
+                                                  auth_request_data,
+                                                  facet,
+                                                  False)
+                        dbg(conf.get('debug'), 'signed.result', signed)
+                        return {
+                            'stateToken': state_token,
+                            'clientData': signed['clientData'],
+                            'signatureData': signed['signatureData']
+                        }
+                    except exc.APDUError as e:
+                        if e.code == APDU_USE_NOT_SATISFIED:
+                            if not prompted:
+                                sys.stderr.write('\nTouch the U2F device to authenticate...\n')
+                                prompted = True
+                        else:
+                            device.close()
+                            devices.remove(device)
+                    except exc.DeviceError:
+                        device.close()
+                        devices.remove(device)
+                time.sleep(0.25)
+        finally:
+            for device in devices:
+                device.close()
+        sys.stderr.write('\nFailed to sign via u2f key\n')
+        return None
+
+def okta_mfa_u2f(conf, s, factors, state_token):
+    devices = u2f.list_devices()
+    if not devices:
+        err('no u2f devices found')
+        return None
+    for factor in factors:
+        provider = factor.get('provider', '')
+        log('mfa {0} challenge request'.format(provider))
+        r = s.post(
+            factor.get('url'),
+            headers=hdr_json(),
+            data = json.dumps({
+                'stateToken': state_token
+            })
+        )
+        if r.status_code != 200:
+            err('okta mfa challenge request failed. {0}'.format(reprr(r)))
+        dbg(conf.get('debug'), 'challenge.response', r.status_code, r.text)
+        j = parse_rjson(r)
+        factor = j['_embedded']['factor']
+        profile = factor['profile']
+        auth_request_data = {
+            'appId': profile['appId'],
+            'keyHandle': profile['credentialId'],
+            'version': profile['version'],
+            'challenge': factor['_embedded']['challenge']['nonce']
+        }
+        signed = do_u2f_sign(devices, auth_request_data, profile['appId'], state_token)
+        if signed:
+            log('mfa {0} signed request'.format(provider))
+            r = s.post(
+                j['_links']['next']['href'],
+                headers=hdr_json(),
+                data = json.dumps(signed)
+            )
+            if r.status_code != 200:
+                err('okta mfa signed request failed. {0}'.format(reprr(r)))
+            dbg(conf.get('debug'), 'u2d.next.resp', r.status_code, r.text)
+            j = parse_rjson(r)
+            return j.get('sessionToken', '').strip()
+        else:
+            return None
 
 def okta_mfa_totp(conf, s, factors, state_token):
     for factor in factors:
