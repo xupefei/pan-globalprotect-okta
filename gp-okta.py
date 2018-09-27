@@ -285,7 +285,7 @@ def okta_mfa(conf, s, j):
         err('no totp factors found')
     return okta_mfa_totp(conf, s, totp_factors, state_token)
 
-def do_u2f_sign(devices, auth_request_data, facet, state_token):
+def do_u2f_sign(conf, devices, auth_request_data, facet, state_token):
         for device in devices[:]:
             try:
                 device.open()
@@ -351,7 +351,7 @@ def okta_mfa_u2f(conf, s, factors, state_token):
             'version': profile['version'],
             'challenge': factor['_embedded']['challenge']['nonce']
         }
-        signed = do_u2f_sign(devices, auth_request_data, profile['appId'], state_token)
+        signed = do_u2f_sign(conf, devices, auth_request_data, profile['appId'], state_token)
         if signed:
             log('mfa {0} signed request'.format(provider))
             r = s.post(
