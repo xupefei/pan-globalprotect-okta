@@ -470,7 +470,7 @@ def paloalto_getconfig(conf, s, saml_username, prelogin_cookie):
     if len(portal_userauthcookie) == 0:
         err('empty portal_userauthcookie')
 
-    gateway = x.find('.//gateways//entry').get('name')
+    gateway = conf.get('gateway') or x.find('.//gateways//entry').get('name')
     root_cert = x.find('.//entry[@name="RootCert"]/cert').text
     with open(conf['root_cert_file'], 'w') as root_cert_file:
         root_cert_file.write(root_cert)

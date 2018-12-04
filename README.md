@@ -34,6 +34,24 @@ is also required.
    ./gp-okta.py gp-okta.conf
 ```
 
+## configuration
+
+Configuration file should be self-explanatory. Options can be overridden with
+`GP_` prefixed respective environment variables, e.g., `GP_PASSWORD` will
+override `password` option in configuration file.  If you company has multiple gateways, 
+make sure to select the closest to your location for improved experience. 
+You can enable debugging to list them when connecting.
+
+NB: It is not wise to store passwords in your config files.
+
+### vpn-slice
+
+[vpn-slice](https://github.com/dlenski/vpn-slice) has been tested to work 
+and can be set up to [split-tunnel](https://en.wikipedia.org/wiki/Split_tunneling) 
+your VPN traffic.  Edit the configuration file adding your hosts and networks
+as optional arguments to `openconnect` as needed.
+
+
 ## docker
 
 Build Docker image before running container:
@@ -45,14 +63,6 @@ Edit gp-okta.conf and launch Docker container:
 ```
 sh run-docker.sh
 ```
-
-## configuration
-
-Configuration file should be self-explanatory. Options can be overridden with
-`GP_` prefixed respective environment variables, e.g., `GP_PASSWORD` will
-override `password` option in configuration file.
-
-NB: It is not wise to store passwords in your config files.
 
 ## known issues
 
