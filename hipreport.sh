@@ -44,6 +44,8 @@ NOW=$(date +'%m/%d/%Y %H:%M:%S')
 
 # This value may need to be extracted from the official HIP report, if a made-up value is not accepted.
 HOSTID="deadbeef-dead-beef-dead-beefdeadbeef"
+OS= uname
+CLIENTVERSION= uname -r
 
 cat <<EOF
 <hip-report name="hip-report">
@@ -57,8 +59,8 @@ cat <<EOF
 	<generate-time>$NOW</generate-time>
 	<categories>
 		<entry name="host-info">
-			<client-version>3.0.1-10</client-version>
-			<os>DataBricks-Linux</os>
+			<client-version>$CLIENTVERSION</client-version>
+			<os>$OS</os>
 			<os-vendor>Canonical</os-vendor>
 			<domain>$DOMAIN.internal</domain>
 			<host-name>$COMPUTER</host-name>
