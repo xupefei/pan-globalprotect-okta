@@ -72,9 +72,6 @@ cat <<EOF
 					<ip-address>
 						<entry name="$IP"/>
 					</ip-address>
-					<ipv6-address>
-						<entry name="dead::beef:dead:beef:dead"/>
-					</ipv6-address>
 				</entry>
 			</network-interface>
 		</entry>
