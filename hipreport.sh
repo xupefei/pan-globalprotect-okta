@@ -43,7 +43,7 @@ COMPUTER=$(echo "$COOKIE" | sed -rn 's/(.+&|^)computer=([^&]+)(&.+|$)/\2/p')
 NOW=$(date +'%m/%d/%Y %H:%M:%S')
 
 # This value may need to be extracted from the official HIP report, if a made-up value is not accepted.
-HOSTID="deadbeef-dead-beef-dead-beefdeadbeef"
+HOSTID= hostid
 OS= uname
 CLIENTVERSION= uname -r
 
