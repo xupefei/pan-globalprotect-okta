@@ -43,9 +43,10 @@ COMPUTER=$(echo "$COOKIE" | sed -rn 's/(.+&|^)computer=([^&]+)(&.+|$)/\2/p')
 NOW=$(date +'%m/%d/%Y %H:%M:%S')
 
 # This value may need to be extracted from the official HIP report, if a made-up value is not accepted.
-HOSTID= hostid
-OS= uname
-CLIENTVERSION= uname -r
+HOSTID=$(hostid)
+OS=$(lsb_release -d -s)
+CLIENTVERSION=$(lsb_release -r -s)
+OSVENDER=$(lsb_release -i -s)
 
 cat <<EOF
 <hip-report name="hip-report">
@@ -60,8 +61,8 @@ cat <<EOF
 	<categories>
 		<entry name="host-info">
 			<client-version>$CLIENTVERSION</client-version>
-			<os>$OS</os>
-			<os-vendor>Canonical</os-vendor>
+			<os>$OS databricks linux-64</os>
+			<os-vendor>$OSVENDER</os-vendor>
 			<domain>$DOMAIN.internal</domain>
 			<host-name>$COMPUTER</host-name>
 			<host-id>$HOSTID</host-id>
