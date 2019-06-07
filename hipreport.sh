@@ -47,6 +47,9 @@ HOSTID=$(hostid)
 OS=$(lsb_release -d -s)
 CLIENTVERSION=$(lsb_release -r -s)
 OSVENDER=$(lsb_release -i -s)
+NICDESCRIPTION=$(ip route get 1.1.1.1 | grep -Po '(?<=dev\s)\w+')
+MACADDRESS=$(cat /sys/class/net/$NICDESCRIPTION/address)
+
 
 cat <<EOF
 <hip-report name="hip-report">
@@ -68,8 +71,8 @@ cat <<EOF
 			<host-id>$HOSTID</host-id>
 			<network-interface>
 				<entry name="{DEADBEEF-DEAD-BEEF-DEAD-BEEFDEADBEEF}">
-					<description>PANGP Virtual Ethernet Adapter #2</description>
-					<mac-address>01-02-03-00-00-01</mac-address>
+					<description>$NICDESCRIPTION</description>
+					<mac-address>$MACADDRESS</mac-address>
 					<ip-address>
 						<entry name="$IP"/>
 					</ip-address>
