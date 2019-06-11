@@ -64,7 +64,7 @@ cat <<EOF
 	<categories>
 		<entry name="host-info">
 			<client-version>$CLIENTVERSION</client-version>
-			<os>$OS databricks linux-64</os>
+			<os>$OS Databricks Linux-64</os>
 			<os-vendor>$OSVENDER</os-vendor>
 			<domain>$DOMAIN.internal</domain>
 			<host-name>$COMPUTER</host-name>
