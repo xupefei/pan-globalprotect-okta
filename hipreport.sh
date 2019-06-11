@@ -55,7 +55,7 @@ cat <<EOF
 <hip-report name="hip-report">
 	<md5-sum>$MD5</md5-sum>
 	<user-name>$USER</user-name>
-	<domain>$DOMAIN</domain>
+	<domain></domain>
 	<host-name>$COMPUTER</host-name>
 	<host-id>$HOSTID</host-id>
 	<ip-address>$IP</ip-address>
@@ -66,7 +66,7 @@ cat <<EOF
 			<client-version>$CLIENTVERSION</client-version>
 			<os>$OS Databricks Linux-64</os>
 			<os-vendor>$OSVENDER</os-vendor>
-			<domain>$DOMAIN.internal</domain>
+			<domain></domain>
 			<host-name>$COMPUTER</host-name>
 			<host-id>$HOSTID</host-id>
 			<network-interface>
