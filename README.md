@@ -55,7 +55,7 @@ as optional arguments to `openconnect` as needed.
 
 ## hip check
 
-The hip check script is included as <a href=https://github.com/connorhetzler2/pan-globalprotect-okta/blob/master/hipreport.sh>hipreport.sh</a> this file contains the information that is sent to the hip check, you can change any of the details. The original script that replicates windows can be found here <a href=https://github.com/dlenski/openconnect/blob/HEAD/hipreport.sh>windowsHipReport.sh</a>
+The hip check script is included as <a href=https://github.com/nicklan/pan-globalprotect-okta/blob/master/hipreport.sh>hipreport.sh</a> this file contains the information that is sent to the hip check, you can change any of the details. The original script that replicates windows can be found here <a href=https://github.com/dlenski/openconnect/blob/HEAD/hipreport.sh>windowsHipReport.sh</a>
 
 
 ## docker
