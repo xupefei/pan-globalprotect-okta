@@ -564,6 +564,7 @@ def main():
     cmd += ' {0} '
     cmd += ' --mtu=5200 '
     cmd += ' --cookie="{1}" '
+    cmd += ' --csd-wrapper=hipreport.sh --cookie '+authcookie
     cmd += conf.get('openconnect_args', '') + ' --cafile "{2}"'
     cmd = cmd.format(gateway, authcookie, conf['root_cert_file'])
     print()
