@@ -22,15 +22,29 @@ COOKIE=
 IP=
 MD5=
 
-while [ "$1" ]; do
-    if [ "$1" = "--cookie" ];    then shift; COOKIE="$1"; fi
-    if [ "$1" = "--client-ip" ]; then shift; IP="$1"; fi
-    if [ "$1" = "--md5" ];       then shift; MD5="$1"; fi
-    shift
+while [ $# -gt 0 ]; do
+  arg="$1"
+  case $arg in
+    --cookie)
+      COOKIE="$2"
+      shift 2
+      ;;
+    --client-ip)
+      IP="$2"
+      shift 2
+      ;;
+    --md5)
+      MD5="$2"
+      shift 2
+      ;;
+    *)
+      >&2 echo "ERROR: Unknown argument $arg"
+  esac
 done
 
+
 if [ -z "$COOKIE" -o -z "$IP" -o -z "$MD5" ]; then
-    echo "Parameters --cookie, --computer, --client-ip, and --md5 are required" >&2
+    echo "Parameters --cookie, --client-ip, and --md5 are required" >&2
     exit 1;
 fi
 
@@ -43,12 +57,14 @@ COMPUTER=$(echo "$COOKIE" | sed -rn 's/(.+&|^)computer=([^&]+)(&.+|$)/\2/p')
 NOW=$(date +'%m/%d/%Y %H:%M:%S')
 
 # This value may need to be extracted from the official HIP report, if a made-up value is not accepted.
+command -v lsb_release >/dev/null 2>&1 || { echo >&2 "This script requires lsb_release but it's not installed.  Aborting."; exit 1; }
 HOSTID=$(hostid)
 OS=$(lsb_release -d -s)
 CLIENTVERSION=$(lsb_release -r -s)
 OSVENDER=$(lsb_release -i -s)
 NICDESCRIPTION=$(ip route get 1.1.1.1 | grep -Po '(?<=dev\s)\w+')
 MACADDRESS=$(cat /sys/class/net/$NICDESCRIPTION/address)
+LASTSCAN=$(date '+%d/%m/%Y %H:%M:%S')
 
 
 cat <<EOF
