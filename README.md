@@ -1,6 +1,8 @@
 
 # pan-globalprotect-okta for macOS
 
+![preview](https://user-images.githubusercontent.com/1687847/102121029-9d6f9a80-3e43-11eb-8ccf-2ba4197dcfd3.png)
+
 This is a modified version of pan-globalprotect-okta to let it works on macOS with menubar shortcuts.
 
 This project makes use of the following:
