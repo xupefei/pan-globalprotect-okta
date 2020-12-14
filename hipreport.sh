@@ -49,21 +49,20 @@ if [ -z "$COOKIE" -o -z "$IP" -o -z "$MD5" ]; then
 fi
 
 # Extract username and domain and computer from cookie
-USER=$(echo "$COOKIE" | sed -rn 's/(.+&|^)user=([^&]+)(&.+|$)/\2/p')
-DOMAIN=$(echo "$COOKIE" | sed -rn 's/(.+&|^)domain=([^&]+)(&.+|$)/\2/p')
-COMPUTER=$(echo "$COOKIE" | sed -rn 's/(.+&|^)computer=([^&]+)(&.+|$)/\2/p')
+USER=$(echo "$COOKIE" | sed -En 's/(.+&|^)user=([^&]+)(&.+|$)/\2/p')
+DOMAIN=$(echo "$COOKIE" | sed -En 's/(.+&|^)domain=([^&]+)(&.+|$)/\2/p')
+COMPUTER=$(echo "$COOKIE" | sed -En 's/(.+&|^)computer=([^&]+)(&.+|$)/\2/p')
 
 # Timestamp in the format expected by GlobalProtect server
 NOW=$(date +'%m/%d/%Y %H:%M:%S')
 
 # This value may need to be extracted from the official HIP report, if a made-up value is not accepted.
-command -v lsb_release >/dev/null 2>&1 || { echo >&2 "This script requires lsb_release but it's not installed.  Aborting."; exit 1; }
 HOSTID=$(hostid)
-OS=$(lsb_release -d -s)
-CLIENTVERSION=$(lsb_release -r -s)
-OSVENDER=$(lsb_release -i -s)
-NICDESCRIPTION=$(ip route get 1.1.1.1 | grep -Po '(?<=dev\s)\w+')
-MACADDRESS=$(cat /sys/class/net/$NICDESCRIPTION/address)
+OS="$(sysctl -n kern.ostype) $(sysctl -n kern.osproductversion)"
+CLIENTVERSION=$(sysctl -n kern.osrelease)
+OSVENDER=Apple
+NICDESCRIPTION=$(route -n get 1.1.1.1 | awk '/interface/{print $2}')
+MACADDRESS=$(ifconfig $NICDESCRIPTION | awk '/ether/{print $2}')
 LASTSCAN=$(date '+%d/%m/%Y %H:%M:%S')
 
 

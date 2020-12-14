@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """
    The MIT License (MIT)
@@ -25,8 +25,9 @@
    THE SOFTWARE.
 """
 from __future__ import print_function
-import io, os, sys, re, json, base64, getpass, subprocess, shlex, signal
+import io, os, sys, re, json, base64, keyring, subprocess, shlex, signal
 from lxml import etree
+from urllib.parse import urlparse
 import requests
 import time
 
@@ -156,7 +157,7 @@ def load_conf(cf):
         sys.stderr.write('username: ')
         conf['username'] = input().strip()
     if len(conf.get('password', '').strip()) == 0:
-        conf['password'] = getpass.getpass('password: ').strip()
+        conf['password'] = keyring.get_password(urlparse(conf['vpn_url']).netloc, conf['username']).strip()
     if 'root_cert_file' not in conf:
         conf['root_cert_file'] = "/tmp/pan-globalprotect-root.cert"
         log('will write root cert to %s' % conf['root_cert_file'])
@@ -368,9 +369,11 @@ def okta_mfa_u2f(conf, s, factors, state_token):
             return None
 
 def okta_mfa_totp(conf, s, factors, state_token):
+    keyring_name = urlparse(conf['okta_url']).netloc
+    keyring_account_base = '{u}#'.format(u=conf.get('username'))
     for factor in factors:
         provider = factor.get('provider', '')
-        secret = conf.get('totp.{0}'.format(provider))
+        secret = keyring.get_password(keyring_name, '{0}totp.{1}'.format(keyring_account_base, provider))
         if secret is None:
             order = 2
         elif len(secret) == 0:
@@ -380,7 +383,7 @@ def okta_mfa_totp(conf, s, factors, state_token):
         factor['order'] = order
     for factor in sorted(factors, key=lambda x: x.get('order', 0)):
         provider = factor.get('provider', '')
-        secret = conf.get('totp.{0}'.format(provider), '') or ''
+        secret = keyring.get_password(keyring_name, '{0}totp.{1}'.format(keyring_account_base, provider)) or ''
         code = None
         if len(secret) == 0:
             sys.stderr.write('{0} TOTP: '.format(provider))
@@ -564,7 +567,7 @@ def main():
     cmd += ' {0} '
     cmd += ' --mtu=5200 '
     cmd += ' --cookie="{1}" '
-    cmd += ' --csd-wrapper=hipreport.sh --cookie '+authcookie
+    cmd += ' --csd-wrapper=hipreport.sh --cookie ' + authcookie + ' '
     cmd += conf.get('openconnect_args', '') + ' --cafile "{2}"'
     cmd = cmd.format(gateway, authcookie, conf['root_cert_file'])
     print()
