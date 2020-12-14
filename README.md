@@ -10,7 +10,7 @@ This project makes use of the following:
 - [pan-globalprotect-okta](https://github.com/nicklan/pan-globalprotect-okta)
 - [openconnect-gui-menu-bar](https://github.com/ventz/openconnect-gui-menu-bar)
 
-## Hoe to use
+## How to use
 
 1. Get openconnect: `brew install openconnect`.
 2. Get BitBar: https://github.com/matryer/bitbar/releases (v1.9.2 is the latest version runs on Catalina) or `brew cask install bitbar`.
