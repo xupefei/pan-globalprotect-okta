@@ -37,6 +37,6 @@ This project makes use of the following:
 	           username+"#totp.okta" (if you use Okta Verify)
 	         Password: the OTP secret, 16 upper-case alphabets
 	```
-7. Try to run `gp-okta.py` in your console. Install any missing pip packages. On my machine, I have to execute `pip3 install pyotp keyring python-u2flib-host lxml`
+7. Try to run `./gp-okta.py gp-okta.conf` in your console. Install any missing pip packages. On my machine, I have to execute `pip3 install pyotp keyring python-u2flib-host lxml`
 8. Copy the whole folder to BitBar script directory.
 9. Run BitBar and try to connect to the VPN.
