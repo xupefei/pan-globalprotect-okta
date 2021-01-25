@@ -14,12 +14,20 @@ VPN_CONNECTED="route -n get example.com | awk '/interface: /{print $2}' | grep t
 # Command to run to disconnect VPN
 WORKING_DIR="$BASEDIR/pan-globalprotect-okta/"
 VPN_CONNECT_CMD="./gp-okta.py gp-okta.conf"
+VPN_CONNECT_CMD_ROUTE="./gp-okta.py gp-okta-route.conf"
 VPN_DISCONNECT_CMD="sudo killall -2 openconnect"
 
 case $1 in
     connect)
         cd $WORKING_DIR
         $VPN_CONNECT_CMD &
+        # Wait for connection so menu item refreshes instantly
+        until eval "$VPN_CONNECTED"; do sleep 1; done
+        sleep 1
+        ;;
+    connect_route)
+        cd $WORKING_DIR
+        $VPN_CONNECT_CMD_ROUTE &
         # Wait for connection so menu item refreshes instantly
         until eval "$VPN_CONNECTED"; do sleep 1; done
         sleep 1
@@ -42,6 +50,7 @@ if [ -n "$(eval "$VPN_CONNECTED")" ]; then
 else
     echo "🔓"
     echo '---'
-    echo "Connect VPN | bash=$0 param1=connect terminal=false refresh=true"
+    echo "Connect VPN (Auto) | bash=$0 param1=connect terminal=false refresh=true"
+    echo "Connect VPN (Default route) | bash=$0 param1=connect_route terminal=false refresh=true"
     exit
 fi
